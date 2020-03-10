@@ -1,15 +1,22 @@
-# Remot3JS
-A Javascript Remote Access System -> In Development
+# Remot3
 
+> Easy Remote Access With Remot3
 
-##More info soon!
+## Build Setup
 
-##Built with
-Nuxt
-Vue
-Vuetify
-NodeJs
-RobotJS
-Jimp
-WebSockets
+``` bash
+# install dependencies
+$ yarn install
 
+# serve with hot reload at localhost:3000
+$ yarn dev
+
+# build for production and launch server
+$ yarn build
+$ yarn start
+
+# generate static project
+$ yarn generate
+```
+
+For detailed explanation on how things work, check out [Nuxt.js docs](https://nuxtjs.org).
