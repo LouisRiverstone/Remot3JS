@@ -1,18 +1,28 @@
 <template>
   <div>
-    <v-flex>
+    <v-flex v-if="config!= null">
       <v-container>
+        {{my.id}}
         <v-flex>
           <v-img :src="frame"></v-img>
         </v-flex>
         <v-flex>
           <v-container>
             <v-slider
-              v-model="interval"
+              v-model="config.interval"
               min="100"
               max="1000"
-              :label="'Intervalo ('+interval+ 'ms)'"
+              @change="changeSettings()"
+              :label="'Intervalo ('+config.interval+ 'ms)'"
             ></v-slider>
+            <v-slider
+              v-model="config.quality"
+              @change="changeSettings()"
+              min="20"
+              max="100"
+              :label="'Qualidade ('+config.quality+ '%)'"
+            ></v-slider>
+            <v-flex></v-flex>
           </v-container>
         </v-flex>
       </v-container>
@@ -24,8 +34,13 @@
 export default {
   data() {
     return {
+      my: {
+        name: "",
+        id: ""
+      },
       socket: null,
       wsUrl: null,
+      config: null,
       frame: "https://picsum.photos/200",
       interval: 500
     };
@@ -38,16 +53,16 @@ export default {
   },
   methods: {
     encode(input) {
-      var keyStr =
+      let keyStr =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/=";
-      var output = "";
-      var chr1, chr2, chr3, enc1, enc2, enc3, enc4;
-      var i = 0;
+      let output = "";
+      let chr1, chr2, chr3, enc1, enc2, enc3, enc4;
+      let i = 0;
 
       while (i < input.length) {
         chr1 = input[i++];
-        chr2 = i < input.length ? input[i++] : Number.NaN; // Not sure if the index
-        chr3 = i < input.length ? input[i++] : Number.NaN; // checks are needed here
+        chr2 = i < input.length ? input[i++] : Number.NaN;
+        chr3 = i < input.length ? input[i++] : Number.NaN;
 
         enc1 = chr1 >> 2;
         enc2 = ((chr1 & 3) << 4) | (chr2 >> 4);
@@ -75,9 +90,21 @@ export default {
         const incomingData = JSON.parse(e.data);
         console.log(this);
         switch (incomingData.type) {
+          case "registerConnection":
+            this.my.id = incomingData.data.id;
+            this.config = incomingData.data.config;
+            break;
           case "screen":
             let bytes = new Uint8Array(incomingData.data.buffer.data);
             this.frame = "data:image/png;base64," + this.encode(bytes);
+            break;
+          case "checkAlive":
+            sockets.send(
+              JSON.stringify({
+                type: "checkAlive",
+                data: { alive: true, id: this.my.id }
+              })
+            );
             break;
 
           default:
@@ -85,6 +112,11 @@ export default {
         }
       };
       this.socket = sockets;
+    },
+    changeSettings() {
+      this.socket.send(
+        JSON.stringify({ type: "changeConfig", data: { config: this.config } })
+      );
     }
   }
 };

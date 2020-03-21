@@ -16,6 +16,7 @@
     "jimp": "^0.9.5",
     "nuxt": "^2.0.0",
     "robotjs": "^0.6.0",
+    "uuid4": "^1.1.4",
     "ws": "^7.2.3"
   },
   "devDependencies": {
